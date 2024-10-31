@@ -1,26 +1,31 @@
-/**
- * @param {number} x 
- * @param {number} y 
- */
-export function Vector(x, y) {
-    this.x = x,
-    this.y = y
+import { Vector, vectorClampX, vectorSetX } from "./vector.mjs";
+
+const _player = {
+    // pixels per second
+    SPEED: 300,
+    WIDTH: 40,
+    HEIGHT: 20,
 }
 
-// pixels per second
-const SPEED = 200;
+export const player = Object.freeze(_player);
 
 /**
- * @param {Set<string>} keysPressed 
- * @param {number} delta 
  * @param {Vector} playerPos 
- * @returns 
+ * @param {Set<string>} keysPressed 
+ * @param {number} canvasWidth
+ * @param {number} delta 
  */
-export const calculatePlayerPos = (playerPos, keysPressed, delta) => {
+export const calculatePlayerPos = (playerPos, keysPressed, canvasWidth, delta) => {
     let newPos = new Vector(playerPos.x, playerPos.y);
-    if (keysPressed.has('ArrowLeft')) newPos.x -= SPEED * delta;
-    if (keysPressed.has('ArrowRight')) newPos.x += SPEED * delta;
-    return newPos;
+
+    if (keysPressed.has('ArrowLeft')) {
+        newPos = vectorSetX(newPos, newPos.x - player.SPEED * delta);
+    }
+    if (keysPressed.has('ArrowRight')) {
+        newPos = vectorSetX(newPos, newPos.x + player.SPEED * delta);
+    }
+
+    return vectorClampX(newPos, player.WIDTH, canvasWidth - (2 * player.WIDTH));
 }
 
 /**
@@ -28,8 +33,6 @@ export const calculatePlayerPos = (playerPos, keysPressed, delta) => {
  * @param {CanvasRenderingContext2D} ctx 
  */
 export const renderPlayer = (playerPos, ctx) => {
-    ctx.beginPath();
-    ctx.arc(playerPos.x, playerPos.y, 20, 0, Math.PI * 2);
     ctx.fillStyle = 'red';
-    ctx.fill();
+    ctx.fillRect(playerPos.x, playerPos.y, player.WIDTH, player.HEIGHT);
 }

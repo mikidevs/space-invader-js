@@ -1,0 +1,11 @@
+{
+  "name": "space-invaders-js",
+  "version": "0.0.1",
+  "type": "module",
+  "dependencies": {
+    "rambda": "^9.3.0"
+  },
+  "devDependencies": {
+    "jsdoc": "~4.0.4"
+  }
+}

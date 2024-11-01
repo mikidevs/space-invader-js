@@ -5,6 +5,10 @@
         "strictFunctionTypes": true,
         "noImplicitAny": true,
         "module": "NodeNext",
-        "moduleResolution": "NodeNext"
-    }
+        "moduleResolution": "NodeNext",
+        "esModuleInterop": true,
+    },
+    "include": [
+        "src/**/*.js"
+    ]
 }

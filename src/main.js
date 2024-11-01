@@ -1,7 +1,11 @@
-import { alien, AlienTransform, calculateAlienT, renderAlien } from "./alien.mjs";
-import { calculatePlayerPos, player, renderPlayer } from "./player.mjs";
-import { Vector } from "./vector.mjs";
+import  * as Alien from "./alien.js";
+import * as Vector from "./vector.js";
+import * as Player from "./player.js";
+import { spawnBullet } from "./bullet.js";
 import * as R from 'rambda';
+
+/** @typedef {import("./types/Vector.d.ts").default} Vector */
+/** @typedef {import("./types/AlienTransform.d.ts").default} AlienTransform */
 
 /** @type {HTMLCanvasElement} */
 export const canvas =  /** @type {HTMLCanvasElement} */ (document.getElementById("game-canvas"));
@@ -35,22 +39,27 @@ function draw(currentTime, lastUpdateTime, prevPlayerPos, prevAlienTs) {
   ctx.fillStyle = 'black';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  const newPlayerPos = calculatePlayerPos(prevPlayerPos, keysPressed, canvas.width, delta);
-  renderPlayer(newPlayerPos, ctx);
+  const newPlayerPos = Player.calculatePosition(prevPlayerPos, keysPressed, canvas.width, delta);
+  Player.render(newPlayerPos, ctx);
+  const bullet = spawnBullet(newPlayerPos, keysPressed);
+
+  if (bullet) {
+
+  }
 
   const monitor = prevAlienTs[0].velocity.x > 0 ? prevAlienTs[prevAlienTs.length - 1] : prevAlienTs[0];
 
   const newAlienT = R.pipe(
-    R.map(t => calculateAlienT(t, monitor, canvas.width, delta)),
-    R.forEach(t => renderAlien(t, ctx))
+    R.map(t => Alien.calculateTransform(t, monitor, canvas.width, delta)),
+    R.forEach(t => Alien.render(t, ctx))
   )(prevAlienTs);
 
   requestAnimationFrame((nextTime) => draw(nextTime, currentTime, newPlayerPos, newAlienT));
 }
 
-const initPlayerPos = new Vector((canvas.width - player.WIDTH) / 2, canvas.height - player.HEIGHT);
+const initPlayerPos = Vector.create((canvas.width - Player.WIDTH) / 2, canvas.height - Player.HEIGHT);
 
 const initAlienTs = Array.from({ length: 11 }, 
-  (v, i) => new AlienTransform(new Vector(i * 1.6 * alien.SIZE, 50), new Vector(alien.SPEED, 0)));
+  (v, i) => Alien.create(Vector.create(i * 1.6 * Alien.SIZE, 50), Vector.create(Alien.SPEED, 0)));
 
 requestAnimationFrame((currentTime) => draw(currentTime, 0, initPlayerPos, initAlienTs));

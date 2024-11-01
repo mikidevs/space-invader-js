@@ -33,6 +33,6 @@ export const calculatePlayerPos = (playerPos, keysPressed, canvasWidth, delta) =
  * @param {CanvasRenderingContext2D} ctx 
  */
 export const renderPlayer = (playerPos, ctx) => {
-    ctx.fillStyle = 'red';
+    ctx.fillStyle = 'lime';
     ctx.fillRect(playerPos.x, playerPos.y, player.WIDTH, player.HEIGHT);
 }

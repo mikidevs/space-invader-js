@@ -1,6 +1,7 @@
 import { curry, identity, ifElse } from "rambda";
 import * as Vector from "./vector";
 import { Renderer } from "./main";
+import { for2, map2 } from "./util";
 
 type Invader = {
     position: Vector.Vector;
@@ -14,9 +15,9 @@ export const SIZE = 35;
 
 export const init = (): Invaders => 
     Array.from(
-        { length: 5 },
+        { length: 11 },
         (_, i) => Array.from(
-            {length: 11},
+            {length: 5},
             (_, j) => (
                 Object.freeze({ 
                     position: Vector.from(i * 1.6 * SIZE, 50 * j), 
@@ -27,11 +28,12 @@ export const init = (): Invaders =>
 
 const outerInvader = (inv: Invader[]): Invader => {
     const first = inv[0];
-    const dir = first.velocity.x > 0 ? Vector.max : Vector.min;
+    const dir = first.velocity.x > 0 ? { fn: Vector.max, init: Vector.from(0, 0) } : 
+                { fn: Vector.min, init: Vector.from(Infinity, Infinity)}
 
     return inv.reduce((acc, curr) => acc = 
-        {position: dir(acc.position, curr.position), velocity: curr.velocity},
-        {} as Invader);
+        {position: dir.fn(acc.position, curr.position), velocity: curr.velocity},
+        {position: dir.init} as Invader);
 }
 
 const outerMost = (inv: Invaders): Invader =>
@@ -40,16 +42,15 @@ const outerMost = (inv: Invaders): Invader =>
 const calculateTransform = (canvasWidth: number, inv: Invaders, delta: number): Invaders => {
     const monitor = outerMost(inv);
 
-    // condition fn for when the aliens should move in the oposite direction
-    const flipPred: (alienVel: Vector.Vector) => boolean = curry(
-        (monitorPos: Vector.Vector, alienVel: Vector.Vector) =>
-            alienVel.x > 0 && monitorPos.x > canvasWidth - (2 * SIZE) 
-            || alienVel.x < 0 && monitorPos.x < SIZE)
-            (monitor.position);
+    // condition fn for when the aliens should move in the opposite direction
+    const flipPred = monitor.velocity.x > 0 && monitor.position.x > canvasWidth - (2 * SIZE) 
+            || monitor.velocity.x < 0 && monitor.position.x < SIZE;
+
+    const newX = (i: Invader) => i.position.x + (i.velocity.x * delta);
 
     return map2(inv, (i: Invader) => ({
-        position: Vector.setX(i.position, i.position.x + (i.velocity.x * delta)),
-        velocity: ifElse(flipPred, Vector.flipX, identity)(i.velocity)
+        position: flipPred ? Vector.from(newX(i), i.position.y + SIZE) : Vector.setX(i.position, newX(i)),
+        velocity: flipPred ? Vector.flipX(i.velocity) : i.velocity
     }));
 };
 

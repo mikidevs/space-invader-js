@@ -26,6 +26,6 @@ const render = (player: Player, ctx: CanvasRenderingContext2D) => {
 export const renderer = (keysPressed: Set<string>, canvasWidth: number, player: Player): Renderer<Player> =>
     ({
         entity: player,
-        compute: curry(calculatePosition)(canvasWidth, keysPressed),
+        compute: curry(calculatePosition)(keysPressed, canvasWidth),
         render
     });

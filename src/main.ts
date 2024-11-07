@@ -51,4 +51,4 @@ const draw = (currentTime: Time, lastUpdateTime: Time, renders: Renderer<Entity>
   requestAnimationFrame((nextTime) => draw(nextTime, currentTime, newRenders));
 }
 
-requestAnimationFrame((currentTime) => draw(currentTime, 0, [playerRenderer, invadersRender]))
+requestAnimationFrame((currentTime) => draw(currentTime, 0, [playerRenderer as Renderer<Entity>, invadersRender as Renderer<Entity>]));

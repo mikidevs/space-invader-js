@@ -1,7 +1,7 @@
-import { curry, identity, ifElse } from "rambda";
-import * as Vector from "./vector";
+import { curry } from "rambda";
 import { Renderer } from "./main";
 import { for2, map2 } from "./util";
+import * as Vector from "./vector";
 
 type Invader = {
     position: Vector.Vector;
@@ -10,7 +10,7 @@ type Invader = {
 
 export type Invaders = Readonly<Invader>[][]
 
-export const SPEED = 50;
+export const SPEED = 25;
 export const SIZE = 35;
 
 export const init = (): Invaders => 
@@ -20,7 +20,7 @@ export const init = (): Invaders =>
             {length: 5},
             (_, j) => (
                 Object.freeze({ 
-                    position: Vector.from(i * 1.6 * SIZE, 50 * j), 
+                    position: Vector.from((i + 1) * 1.6 * SIZE, 50 * j), 
                     velocity: Vector.from(SPEED, 0)
                 } as Invader))
             )

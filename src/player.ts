@@ -5,11 +5,11 @@ import { curry } from "rambda";
 
 export type Player = Vector.Vector;
 
-export const SPEED = 275; // pixels per second
+export const SPEED = 200; // pixels per second
 export const WIDTH = 40;
 export const HEIGHT = 20;
 
-const calculatePosition = (keysPressed: Set<string>, canvasWidth: number, player: Player, delta: number) => {
+const calculatePosition = (keysPressed: Set<string>, canvasWidth: number, player: Player, delta: number): Player => {
     const newPos = match(keysPressed)
         .with(P.when(s => s.has('ArrowLeft')), () => Vector.setX(player, player.x - SPEED * delta))
         .with(P.when(s => s.has('ArrowRight')), () => Vector.setX(player, player.x + SPEED * delta))

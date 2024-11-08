@@ -1,18 +1,19 @@
-import  * as Invaders from "./invaders";
+import * as Invaders from "./invaders";
 import * as Vector from "./vector";
 import * as Player from "./player";
+import * as Bullet from "./bullet";
 
 type Time = DOMHighResTimeStamp;
 
-type Entity = Player.Player | Invaders.Invaders;
+type Entity = Player.Player | Invaders.Invaders | Bullet.Bullet;
 
 type Compute<T extends Entity> = (entity: T, delta: number) => T;
 
 export type Renderer<T extends Entity> = 
-    { entity: T, compute: Compute<T>, render: (entity: T, ctx: CanvasRenderingContext2D) => void }
+    { entity: T, compute: Compute<T>, render: (entity: T, ctx: CanvasRenderingContext2D) => void };
 
 const canvas: HTMLCanvasElement = <HTMLCanvasElement> document.getElementById("game-canvas");
-canvas.width = 800;
+canvas.width = 900;
 canvas.height = 600; 
 
 // I'm cheating here with some mutable state
@@ -34,7 +35,9 @@ const initPlayer = Vector.from((canvas.width - Player.WIDTH) / 2, canvas.height 
 const playerRenderer = Player.renderer(keysPressed, canvas.width, initPlayer);
 
 const initAliens = Invaders.init();
-const invadersRender: Renderer<Invaders.Invaders> = Invaders.renderer(canvas.width, initAliens)
+const invadersRender: Renderer<Invaders.Invaders> = Invaders.renderer(canvas.width, initAliens);
+
+const bulletRenderer = Bullet.renderer(keysPressed, initPlayer, Bullet.init());
 
 const draw = (currentTime: Time, lastUpdateTime: Time, renders: Renderer<Entity>[]) => {
   const delta = (currentTime - lastUpdateTime) / 1000;
@@ -51,4 +54,8 @@ const draw = (currentTime: Time, lastUpdateTime: Time, renders: Renderer<Entity>
   requestAnimationFrame((nextTime) => draw(nextTime, currentTime, newRenders));
 }
 
-requestAnimationFrame((currentTime) => draw(currentTime, 0, [playerRenderer as Renderer<Entity>, invadersRender as Renderer<Entity>]));
+requestAnimationFrame((currentTime) => draw(currentTime, 0, [
+  playerRenderer as Renderer<Entity>,
+  invadersRender as Renderer<Entity>,
+  bulletRenderer as Renderer<Entity>
+]));

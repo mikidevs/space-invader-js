@@ -1,3 +1,5 @@
+import { Bullet } from "./bullet";
+import { randomInt } from "./util";
 import { Vector } from "./vector";
 
 export class Invader {
@@ -17,12 +19,15 @@ export class Invader {
        (this.position.y <= pos.y && pos.y <= this.position.y + Invader.SIZE) 
 }
 
+
 export class Invaders {
     constructor() {
         const row = i => Array.from({length: 11}, (_, j) => 
-            Invader.of(Vector.of((j + 1) * 1.6 * Invader.SIZE, i * 50), Vector.of(Invader.SPEED, 0)))
+            Invader.of(Vector.of((j + 1) * 1.6 * Invader.SIZE, (i + 1) * 50), Vector.of(Invader.SPEED, 0)))
 
         this.invaders = Array.from({length: 5}, (_, i) => row(i));
+
+        this.invaderBullets = Array.from({length: 5}, () => ({pos: null, bullet: Bullet.of()}));
     }
 
     static of = () => new Invaders();
@@ -39,7 +44,7 @@ export class Invaders {
 
     outerMostInvader = () => this.#outerInvaderInArr(this.invaders.map(this.#outerInvaderInArr));
 
-    updateAndRender(ctx, canvasWidth, bullet, delta) {
+    updateAndRender(ctx, canvasWidth, canvasHeight, playerBullet, delta) {
         const monitor = this.outerMostInvader();
 
         // condition fn for when the aliens should move in the opposite direction
@@ -48,14 +53,23 @@ export class Invaders {
    
         ctx.fillStyle = 'white';
 
-        let invToDestroy = null;
-        
+        const invToDestroy = null;
+
         this.invaders.forEach((invRow, rowIdx) => {
             invRow.forEach((inv, colIdx) => {
                 // Handle collision
-                if(bullet.instance && inv.overlaps(bullet.instance)) {
+                if(playerBullet.instance && inv.overlaps(playerBullet.instance)) {
                     invToDestroy = {row: rowIdx, col: colIdx};
-                    bullet.destroy();
+                    playerBullet.destroy();
+                }
+                
+                // Handle bullet 
+                const rand = randomInt(1500);
+                if(rand == 0) {
+                    const idx = this.bulletsToSpawn.findIndex(elem => elem.pos == null);
+                    if(idx >= 0) {
+                        this.invaderBullets[idx].pos = inv.position;
+                    }
                 }
 
                 // Handle update
@@ -63,13 +77,23 @@ export class Invaders {
                 if(flipPred) {
                     inv.position.y += Invader.SIZE;
                     inv.velocity.flipX();
-                    inv.velocity.x *= 1.1; 
+                    inv.velocity.x *= 1.15; 
                 } 
                 ctx.fillRect(inv.position.x, inv.position.y, Invader.SIZE, Invader.SIZE);
             });
         });
+
         if (invToDestroy) {
             this.invaders[invToDestroy.row].splice(invToDestroy.col, 1);
         }
+
+        this.invaderBullets.forEach(
+            (b, idx) => {
+                if(b.position) {
+                    const [pos, bullet] = b;
+                    b.enemyBulletUpdateAndRender(ctx, pos != null, canvasHeight, b.position, delta);
+                }
+            }
+        );
     }
 }

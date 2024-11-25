@@ -4,7 +4,7 @@ import { Player } from "./player";
 
 const canvas = document.getElementById("game-canvas");
 canvas.width = 900;
-canvas.height = 600; 
+canvas.height = 710; 
 
 const ctx = canvas.getContext("2d");
 
@@ -29,9 +29,9 @@ function draw(currentTime, lastUpdatedTime) {
   ctx.fillStyle = 'black';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   player.updateAndRender(ctx, keysPressed, canvas.width, delta);
-  bullet.updateAndRender(ctx, keysPressed, canvas.height, player.position.x, delta);
-  invaders.updateAndRender(ctx, canvas.width, bullet, delta);
-  // return
+  bullet.playerBulletUpdateAndRender(ctx, keysPressed, canvas.height, player.position.x, delta);
+  invaders.updateAndRender(ctx, canvas.width, canvas.height, bullet, delta);
+  return
   requestAnimationFrame(nextTime => draw(nextTime, currentTime));
 }
 

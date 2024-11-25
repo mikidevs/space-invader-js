@@ -6,5 +6,5 @@ export const map2 = (list2, mapper) =>
 export const for2 = (list2, actionP) =>
     list2.forEach((a, i) => a.forEach((b, j) => actionP(i, j)));
 
-export const randomInt = (max) => 
-    Math.floor(Math.random() * max);
+export const randomInt = (max) =>
+    Math.floor(Math.random() * Math.floor(max));
